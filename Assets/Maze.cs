@@ -4,9 +4,16 @@ using UnityEngine;
 
 public class Maze : MonoBehaviour
 {
-    [Header("Maze Parameters.")]
+    [Header("Maze Size")]
     public int w;
     public int h;
+
+    [Header("Courtyard Size")]
+    public int courtyardCount = 2;
+    public int courtyardSize = 2;
+
+    [Range(0f, 1f)]
+    public float loopPercent = 0.1f;
 
     private int[,] tiles;
 
@@ -41,6 +48,7 @@ public class Maze : MonoBehaviour
         return x >= 1 && y >= 1 && x <= w - 2 && y <= h - 2;
     }
 
+    [ContextMenu("Generate")]
     public void Generate()
     {
         tiles = new int[w, h];
@@ -57,8 +65,9 @@ public class Maze : MonoBehaviour
         bool[,] visited = new bool[w, h];
 
         Walk(1, 1, visited);
+        AddLoops(loopPercent);
+        CreateCourtyards(courtyardCount, courtyardSize);
         CreateColliders();
-
     }
 
     private void Walk(int x, int y, bool[,] visited)
@@ -100,16 +109,60 @@ public class Maze : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
+    private void AddLoops(float percent)
+    {
+        List<int> wallsX = new List<int>();
+        List<int> wallsY = new List<int>();
+
+        for (int x = 1; x <= w - 2; x += 2)
+        {
+            for (int y = 1; y <= h - 2; y += 2)
+            {
+                if (InMaze(x + 2, y))
+                {
+                    wallsX.Add(x + 1);
+                    wallsY.Add(y);
+                }
+
+                if (InMaze(x, y + 2))
+                {
+                    wallsX.Add(x);
+                    wallsY.Add(y + 1);
+                }
+            }
+        }
+
+        int n = wallsX.Count;
+        int count = Mathf.FloorToInt(n * percent);
+
+        for (int i = 0; i < count; i++)
+        {
+            int j = Random.Range(i, n);
+
+            (wallsX[i], wallsX[j]) = (wallsX[j], wallsX[i]);
+            (wallsY[i], wallsY[j]) = (wallsY[j], wallsY[i]);
+
+            Set(0, wallsX[i], wallsY[i]);
+        }
+    }
+
+    private void CreateCourtyards(int count, int size)
     {
 
-    for (int x = 0; x < w; x++)
-        for (int y = 0; y < h; y++)
+        int maxStartX = (w - 2) - (size - 1);
+        int maxStartY = (h - 2) - (size - 1);
+
+        for (int i = 0; i < count; i++)
         {
-            if (tiles != null && tiles[x, y] == 1)
+            int startX = Random.Range(1, maxStartX + 1);
+            int startY = Random.Range(1, maxStartY + 1);
+
+            for (int x = startX; x < startX + size; x++)
             {
-                Gizmos.color = Color.white;
-                Gizmos.DrawCube(new Vector3(x, y, 0f), Vector3.one * 0.9f);
+                for (int y = startY; y < startY + size; y++)
+                {
+                    Set(0, x, y);
+                }
             }
         }
     }
@@ -117,7 +170,11 @@ public class Maze : MonoBehaviour
 
     private void CreateColliders()
     {
-    for (int x = 0; x < w; x++)
+        for (int i = transform.childCount - 1; i >= 0; i--)
+        {
+            DestroyImmediate(transform.GetChild(i).gameObject);
+        }
+        for (int x = 0; x < w; x++)
     {
         for (int y = 0; y < h; y++)
         {
@@ -137,3 +194,24 @@ public class Maze : MonoBehaviour
 
 }
 }
+
+#if UNITY_EDITOR
+[UnityEditor.CustomEditor(typeof(Maze))]
+public class MazeInspector : UnityEditor.Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+ 
+        Maze maze = (Maze)target;
+ 
+        GUILayout.Space(10);
+ 
+        if (GUILayout.Button("Generate Maze"))
+        {
+            maze.Generate();
+            UnityEditor.EditorUtility.SetDirty(maze);
+        }
+    }
+}
+#endif

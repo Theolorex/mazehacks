@@ -81,7 +81,7 @@ public class Minotaur : MonoBehaviour
     //kill player if on same tile
     if ()
     {
-        GameManager.Instance.GameFail();
+        GameManager.Instance.AttemptFail();
     }
         
         //MINOTAUR SPAWN IN BREAKABLE TILE IF TOO FAR 

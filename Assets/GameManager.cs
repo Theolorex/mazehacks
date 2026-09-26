@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
 
 
 
-    public void GameFail()
+    public void AttemptFail()
     {
         
         

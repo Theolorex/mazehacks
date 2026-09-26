@@ -174,15 +174,15 @@ public class Maze : MonoBehaviour
         {
             DestroyImmediate(transform.GetChild(i).gameObject);
         }
-        for (int x = 0; x < w; x++)
-    {
-        for (int y = 0; y < h; y++)
+        for (int tx = 0; tx < w; tx++)
+     {
+        for (int ty = 0; ty < h; ty++)
         {
-            if (tiles[x, y] == 1)
+            if (tiles[tx, ty] == 1)
             {
                 GameObject wall = new GameObject("Wall");
                 wall.transform.parent = transform;
-                wall.transform.position = new Vector3(x, y, 0);
+                wall.transform.position = new Vector3(transform.position.x + tx, transform.position.y + ty + y, 0);
 
                 BoxCollider2D collider = wall.AddComponent<BoxCollider2D>();
                 collider.size = Vector2.one;
@@ -190,9 +190,8 @@ public class Maze : MonoBehaviour
         }
 
     }
-        //private void CreateColliders()
 
-}
+    }
 }
 
 #if UNITY_EDITOR

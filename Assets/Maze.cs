@@ -57,6 +57,7 @@ public class Maze : MonoBehaviour
         bool[,] visited = new bool[w, h];
 
         Walk(1, 1, visited);
+        CreateColliders();
 
     }
 
@@ -105,8 +106,34 @@ public class Maze : MonoBehaviour
     for (int x = 0; x < w; x++)
         for (int y = 0; y < h; y++)
         {
-            Gizmos.color = Color.white;
-            Gizmos.DrawCube(new Vector3(x, y, 0f), Vector3.one * 0.9f);
+            if (tiles != null && tiles[x, y] == 1)
+            {
+                Gizmos.color = Color.white;
+                Gizmos.DrawCube(new Vector3(x, y, 0f), Vector3.one * 0.9f);
+            }
         }
     }
+
+
+    private void CreateColliders()
+    {
+    for (int x = 0; x < w; x++)
+    {
+        for (int y = 0; y < h; y++)
+        {
+            if (tiles[x, y] == 1)
+            {
+                GameObject wall = new GameObject("Wall");
+                wall.transform.parent = transform;
+                wall.transform.position = new Vector3(x, y, 0);
+
+                BoxCollider2D collider = wall.AddComponent<BoxCollider2D>();
+                collider.size = Vector2.one;
+            }
+        }
+
+    }
+        //private void CreateColliders()
+
+}
 }

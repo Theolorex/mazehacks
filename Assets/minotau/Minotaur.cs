@@ -7,15 +7,16 @@ public class Minotaur : MonoBehaviour
 {
 
 
+    private Vector2 _currentPosition; //THINK:how to get current position, noncleanly its kinda easy just whatever tile its touching
     private State _currentState;
     private float _currentSpeed; //move in intervals of this number
     private float _chargeTimer;
-    private float _closenessRatio; //increase the ratio based off tiles in distance to player, 
+    private float _closenessRatio; //increase the ratio based off tiles in distance to player
     private float _lostTimer;
     private bool _playerSeen;
     private enum State
     {
-        FINDING, //simply following the player, offscreen, should probably be faster to keep tension
+        FINDING, //simply following the player, offscreen
         CHASING, 
         CHARGING,
         SCARING
@@ -57,7 +58,7 @@ public class Minotaur : MonoBehaviour
                 //if player is still within a line of tiles, even through walls, set
                 break;
             case State.SCARING:
-                FindJumpscare(); //find a valid breakable tile closest to the player 
+                //FindJumpscare(); //find a valid breakable tile closest to the player 
                 if (_closenessRatio == 0.6f) //arbitrary closeness rn
                 {
                     //SmashTile()
@@ -99,9 +100,12 @@ public class Minotaur : MonoBehaviour
 
     private void CalcDistance()
     {
-        _closenessRatio = //convert number of tiles between minotaur to player to a ratio,
-                          //0.0 at a certain amount of tiles away so no shaking past like 5 tiles
-                          //1.0 when hugging tiles to trigger catch, or just make it a hitbox to simplify later
+
+        _closenessRatio = Vector2.Distance(_currentPosition, Player.Instance.GetPosition()); //convert number of tiles between minotaur to player to a ratio,
+        //0.0 at a certain amount of tiles away so no shaking past like 5 tiles
+        //1.0 when hugging tiles to trigger catch, or just make it a hitbox to simplify later
     }
+    
+    
 
 }

@@ -182,7 +182,7 @@ public class Maze : MonoBehaviour
             {
                 GameObject wall = new GameObject("Wall");
                 wall.transform.parent = transform;
-                wall.transform.position = new Vector3(transform.position.x + tx, transform.position.y + ty + y, 0);
+                wall.transform.position = new Vector3(transform.position.x + tx, transform.position.y + ty, 0);
 
                 BoxCollider2D collider = wall.AddComponent<BoxCollider2D>();
                 collider.size = Vector2.one;

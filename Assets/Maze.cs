@@ -14,6 +14,9 @@ public class Maze : MonoBehaviour
     public int courtyardCount = 2;
     public int courtyardSize = 2;
 
+    [SerializeField] private GameObject wallPrefab;
+    [SerializeField] private GameObject floorPrefab;
+
     [Range(0f, 1f)]
     public float loopPercent = 0.1f;
 
@@ -223,22 +226,22 @@ public class Maze : MonoBehaviour
             DestroyImmediate(transform.GetChild(i).gameObject);
         }
         for (int tx = 0; tx < w; tx++)
-     {
-        for (int ty = 0; ty < h; ty++)
         {
-            if (tiles[tx, ty] == 1)
+            for (int ty = 0; ty < h; ty++)
             {
-                GameObject wall = new GameObject("Wall");
-                wall.transform.parent = transform;
-                wall.transform.position = new Vector3(transform.position.x + tx, transform.position.y + ty, 0);
-
-                BoxCollider2D collider = wall.AddComponent<BoxCollider2D>();
-                collider.size = Vector2.one;
+                if (tiles[tx, ty] == 1)
+                {
+                    GameObject wall = Instantiate(wallPrefab, new Vector3(tx, ty, 0), Quaternion.identity, transform);
+                    wall.name = "WallGood";
+                }
+                else if (tiles[tx, ty] == 0)
+                {
+                    GameObject chest = Instantiate(floorPrefab, new Vector3(tx, ty, 0), Quaternion.identity, transform);
+                    chest.name = "Floor";
+                }
             }
+
         }
-
-    }
-
     }
     private void OnDrawGizmos()
     {

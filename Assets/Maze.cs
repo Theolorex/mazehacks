@@ -254,9 +254,9 @@ public class Maze : MonoBehaviour
             {
                 if (tiles[tx, ty] == 2)
                 {
-                    Gizmos.color = Color.black;
+                    Gizmos.color = Color.green;
                     Gizmos.DrawCube(
-                    new Vector3(transform.position.x + tx, transform.position.y + ty, 0f),
+                    new Vector3(tx, ty, 0f),
                     Vector3.one * 0.9f
                     );
                 }

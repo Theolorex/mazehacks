@@ -245,15 +245,15 @@ public class Maze : MonoBehaviour
         if (tiles == null)
             return;
 
-        for (int x = 0; x < w; x++)
+        for (int tx = 0; tx < w; tx++)
         {
-            for (int y = 0; y < h; y++)
+            for (int ty = 0; ty < h; ty++)
             {
-                if (tiles[x, y] == 2)
+                if (tiles[tx, ty] == 2)
                 {
                     Gizmos.color = Color.black;
                     Gizmos.DrawCube(
-                    new Vector3(x, y, 0f),
+                    new Vector3(transform.position.x + tx, transform.position.y + ty, 0f),
                     Vector3.one * 0.9f
                     );
                 }

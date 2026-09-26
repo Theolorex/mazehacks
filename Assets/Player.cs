@@ -18,6 +18,8 @@ public class Player : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+
+
     // Start is called before the first frame update
     void Start()
     {

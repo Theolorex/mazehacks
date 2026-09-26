@@ -13895,6 +13895,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   w: 40
   h: 40
+  chestCount: 3
+  courtyardCount: 2
+  courtyardSize: 2
+  wallPrefab: {fileID: 2547780959699856995, guid: def39ece468223528abc553676c7b958, type: 3}
+  floorPrefab: {fileID: 2065611565446053518, guid: 853ea7d510111eb50a4a092f3db0a54d, type: 3}
   loopPercent: 0.323
 --- !u!1 &1825625456
 GameObject:

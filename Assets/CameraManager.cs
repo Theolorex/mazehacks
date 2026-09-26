@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
-    public static CameraManager Instance { get; private set; }
+    public static CameraManager Instance { get; private set; } //singletonize this b 
+    
     void Start()
     {
         Instance = this;
@@ -15,6 +16,9 @@ public class CameraManager : MonoBehaviour
     {
         
     }
-    
-    public void 
+
+    public void CameraShake(float shakeAmount)
+    {
+        //based off currentCenter, shakeAmount based off a radius around
+    }
 }

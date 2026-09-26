@@ -11,6 +11,7 @@ public class Minotaur : MonoBehaviour
     private float _currentSpeed; //move in intervals of this number
     private float _chargeTimer;
     private float _closenessRatio; //increase the ratio based off tiles in distance to player, 
+    private float _lostTimer;
     private bool _playerSeen;
     private enum State
     {
@@ -29,18 +30,17 @@ public class Minotaur : MonoBehaviour
     void Update()
     {
         CalcDistance();
-
-        if (_closenessRatio == 0.0f)
-        {
-            //start timer
-            //if timer reaches a certain point, 
-            _currentState = State.SCARING;
-        }
         
         switch (_currentState)
         {
             case State.FINDING:
                 Movement();
+                if (_closenessRatio == 0.0f)
+                {
+                    //start timer
+                    //if timer reaches a certain point, 
+                    _currentState = State.SCARING;
+                }
                 
                 if (_playerSeen)
                 {
@@ -57,7 +57,7 @@ public class Minotaur : MonoBehaviour
                 //if player is still within a line of tiles, even through walls, set
                 break;
             case State.SCARING:
-                FindJumpscare();
+                FindJumpscare(); //find a valid breakable tile closest to the player 
                 if (_closenessRatio == 0.6f) //arbitrary closeness rn
                 {
                     //SmashTile()
@@ -76,7 +76,7 @@ public class Minotaur : MonoBehaviour
         //lerp position
     }
     
-    //miniotaur goals
+    //minotaur goals
     //follow the player ASTAR 
     //kill player if on same tile
     if ()
@@ -90,11 +90,10 @@ public class Minotaur : MonoBehaviour
 
     private void minoVisuals()
     {
-        //radius around minotaur, closer the player gets the more the camera shakes in response
-        
-        if (player.get) //
+        if (_closenessRatio > 0.0f)
         {
-            
+            float convertClosenessRatio = _closenessRatio; //the cam manager shake amount is def not gonna be 1:1 witht eh closeness ratio
+            CameraManager.Instance.CameraShake(convertClosenessRatio);
         }
     }
 

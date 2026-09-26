@@ -1,4 +1,4 @@
-using System.Collections;
+ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -234,11 +234,12 @@ public class Maze : MonoBehaviour
                     GameObject wall = Instantiate(wallPrefab, new Vector3(tx, ty, 0), Quaternion.identity, transform);
                     wall.name = "WallGood";
                 }
-                else if (tiles[tx, ty] == 0)
+                else if (tiles[tx, ty] == 0 || tiles[tx, ty] == 2)
                 {
-                    GameObject chest = Instantiate(floorPrefab, new Vector3(tx, ty, 0), Quaternion.identity, transform);
-                    chest.name = "Floor";
+                    GameObject floor = Instantiate(floorPrefab, new Vector3(tx, ty, 0), Quaternion.identity, transform);
+                    floor.name = "Floor";
                 }
+
             }
 
         }

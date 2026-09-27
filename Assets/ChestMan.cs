@@ -8,25 +8,16 @@ public class ChestMan : MonoBehaviour
 {
     
     public int chestCount = 0;
-    GameObject maze;
+    public GameObject maze;
+    public List<GameObject> chests = new List<GameObject>();
+    private bool chestsFound = false;
+
     // Start is called before the first frame update
     void Start()
     {
         
-        List<GameObject> chests = new List<GameObject>();
-
-        foreach (Transform child in maze.transform)
-        {
-            if (child.name == "Chest")
-            {
-                chestCount++;
-                chests.Add(child.gameObject);
-            }
-        }
-        
-        Debug.Log("Chests found: " + chestCount);
-
     }
+
     public int decrementChestCount()
     {
         if (chestCount > 0)
@@ -39,6 +30,20 @@ public class ChestMan : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        // Maze.Start() may run after this script's Start(), so wait until Update to search for chests.
+        if (!chestsFound)
+        {
+            foreach (Transform child in maze.transform)
+            {
+                if (child.name == "Chest")
+                {
+                    chestCount++;
+                    chests.Add(child.gameObject);
+                }
+            }
+
+            Debug.Log("Chests found: " + chestCount);
+            chestsFound = true;
+        }
     }
 }

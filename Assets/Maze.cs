@@ -8,7 +8,7 @@ public class Maze : MonoBehaviour
     public int w;
     public int h;
 
-    public int chestCount = 3;
+    static public int chestCount = 3;
 
     [Header("Courtyard Size")]
     public int courtyardCount = 2;
@@ -16,6 +16,7 @@ public class Maze : MonoBehaviour
 
     [SerializeField] private GameObject wallPrefab;
     [SerializeField] private GameObject floorPrefab;
+    [SerializeField] private GameObject chestPrefab;
 
     [Range(0f, 1f)]
     public float loopPercent = 0.1f;
@@ -234,10 +235,15 @@ public class Maze : MonoBehaviour
                     GameObject wall = Instantiate(wallPrefab, new Vector3(tx, ty, 0), Quaternion.identity, transform);
                     wall.name = "WallGood";
                 }
-                else if (tiles[tx, ty] == 0 || tiles[tx, ty] == 2)
+                else if (tiles[tx, ty] == 0)
                 {
                     GameObject floor = Instantiate(floorPrefab, new Vector3(tx, ty, 0), Quaternion.identity, transform);
                     floor.name = "Floor";
+                }
+                else if (tiles[tx, ty] == 2)
+                {
+                    GameObject chest = Instantiate(chestPrefab, new Vector3(tx, ty, 0), Quaternion.identity, transform);
+                    chest.name = "Chest";
                 }
 
             }

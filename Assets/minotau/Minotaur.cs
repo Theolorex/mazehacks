@@ -1,19 +1,30 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class Minotaur : MonoBehaviour
-{
-
-
+{ 
+    [SerializeField] float jumpRadius = 0.6f; //arbitrary, serialiszed for testing
+    [SerializeField] private float patienceTime;
+    [SerializeField] private float lostTime;
     private Vector2 _currentPosition; //THINK:how to get current position, noncleanly its kinda easy just whatever tile its touching
     private State _currentState;
     private float _currentSpeed; //move in intervals of this number
     private float _chargeTimer;
+    private float _lostTimer; //different time
+    private float maxDistance = 10f;
     private float _closenessRatio; //increase the ratio based off tiles in distance to player
-    private float _lostTimer;
+    private float _chaseTimer;
+    
     private bool _playerSeen;
+    private bool _timerStarted;
+    private bool _lostsightStarted;
+    private bool _jumpFound;
+    
     private enum State
     {
         FINDING, //simply following the player, offscreen
@@ -36,13 +47,7 @@ public class Minotaur : MonoBehaviour
         {
             case State.FINDING:
                 Movement();
-                if (_closenessRatio == 0.0f)
-                {
-                    //start timer
-                    //if timer reaches a certain point, 
-                    _currentState = State.SCARING;
-                }
-                
+                CheckPatience();
                 if (_playerSeen)
                 {
                     //maybe make exclaimation visual to show its seen the player
@@ -50,16 +55,34 @@ public class Minotaur : MonoBehaviour
                 }
                 break;
             case State.CHASING:
-                
                 Movement();
+                RampMovement();
+                if (!_playerSeen) //while chasing, if player isn't seen....
+                {
+                    if (!_lostsightStarted)
+                    {
+                        _chaseTimer = Time.time + lostTime;
+                    }
+                    _lostsightStarted = true;
+                    
+                    if (Time.time >= _chaseTimer)
+                    {
+                        _lostsightStarted = false;
+                        _currentState = State.FINDING;
+                    }
+                }
+                else
+                {
+                    _chaseTimer = Time.time + lostTime; //reset timer if the minotaur sees player again
+                }
                 break;
             case State.CHARGING:
                 //start timer
                 //if player is still within a line of tiles, even through walls, set
                 break;
             case State.SCARING:
-                //FindJumpscare(); //find a valid breakable tile closest to the player 
-                if (_closenessRatio == 0.6f) //arbitrary closeness rn
+                FindJumpscare(); //find a valid breakable tile closest to the player 
+                if (_closenessRatio >= jumpRadius && _jumpFound) //arbitrary closeness rn
                 {
                     //SmashTile()
                     _currentState = State.CHASING;
@@ -70,20 +93,51 @@ public class Minotaur : MonoBehaviour
         minoVisuals();
     }
 
+    private void FindJumpscare()
+    {
+        //find player direction, floor it 
+        //get wall in that direction
+        _jumpFound = true;
+    }
+
+    private void SmashTile()
+    {
+        //get reference to tile, destroy it 
+    }
+
+    private void CheckPatience()
+    {
+        if (_closenessRatio == 0.0f)
+        {
+            if (!_timerStarted)
+            {
+                _lostTimer = Time.time + patienceTime;
+            }
+            _timerStarted = true;
+
+            if (Time.time >= _lostTimer)
+            {
+                _timerStarted = false;
+                _currentState = State.SCARING;
+            }
+        }
+    }
+
     private void Movement()
     {
         //based on interval
         //jump to next tile
         //lerp position
     }
-    
-    //minotaur goals
-    //follow the player ASTAR 
-    //kill player if on same tile
-    if ()
+
+    private void CheckDeath()
     {
-        GameManager.Instance.GameFail();
+        if (_closenessRatio >= 0.0f)
+        {
+            GameManager.Instance.GameFail();
+        }
     }
+    
         
         //MINOTAUR SPAWN IN BREAKABLE TILE IF TOO FAR 
     
@@ -100,11 +154,21 @@ public class Minotaur : MonoBehaviour
 
     private void CalcDistance()
     {
-
-        _closenessRatio = Vector2.Distance(_currentPosition, Player.Instance.GetPosition()); //convert number of tiles between minotaur to player to a ratio,
-        //0.0 at a certain amount of tiles away so no shaking past like 5 tiles
+        //math.flooring function floor the players position divided by tile size  //divided by tile size???
+        _currentPosition = new Vector2(Mathf.Floor(transform.position.x), Mathf.Floor(transform.position.y));
+        Debug.Log("here cause my math might be wrong, current mino position is " + _currentPosition);
+        float distance = Vector2.Distance(_currentPosition, Player.Instance.GetPosition()); //convert number of tiles between minotaur to player to a ratio,
+        _closenessRatio = 1f - Mathf.Clamp01(distance / maxDistance); //ratio 
+        
         //1.0 when hugging tiles to trigger catch, or just make it a hitbox to simplify later
     }
+
+    private Vector2 GetMinoPosition()
+    {
+        return _currentPosition;
+    }
+    
+    
     
     
 

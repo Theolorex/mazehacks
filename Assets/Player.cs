@@ -6,6 +6,8 @@ public class Player : MonoBehaviour
 {
     public static Player Instance { get; private set; }
     public Vector2 direction;
+    private Rigidbody2D rigidbody2D;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -32,6 +34,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        rigidbody2D = GetComponent<Rigidbody2D>();
         
     }
 

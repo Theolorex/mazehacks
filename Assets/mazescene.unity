@@ -7764,6 +7764,7 @@ MonoBehaviour:
   chestCount: 0
   maze: {fileID: 1814894956}
   chests: []
+  allChestsCollected: 0
 --- !u!4 &1025237542
 Transform:
   m_ObjectHideFlags: 0
@@ -14142,8 +14143,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1ebbdf20b8202340be038569820f739, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  w: 40
-  h: 40
+  w: 39
+  h: 39
+  horizChess: {fileID: 21300000, guid: 4ddadbf70c14fefebadd701d5d8d83e0, type: 3}
+  vertChess: {fileID: 21300000, guid: bc7097c95c4bd090a8ad806eea84e3e2, type: 3}
   courtyardCount: 2
   courtyardSize: 2
   wallPrefab: {fileID: 2547780959699856995, guid: def39ece468223528abc553676c7b958, type: 3}

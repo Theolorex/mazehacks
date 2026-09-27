@@ -10,7 +10,9 @@ public class ChestMan : MonoBehaviour
     public int chestCount = 0;
     public GameObject maze;
     public List<GameObject> chests = new List<GameObject>();
+    
     private bool chestsFound = false;
+    public bool allChestsCollected = false;
 
     // Start is called before the first frame update
     void Start()
@@ -44,6 +46,14 @@ public class ChestMan : MonoBehaviour
 
             Debug.Log("Chests found: " + chestCount);
             chestsFound = true;
+        }
+
+        if (chestCount == 0 && chestsFound && !allChestsCollected)
+        {
+            
+            Maze.entrance.tag = "OpenDoor";
+            Maze.entrance.GetComponent<Collider2D>().isTrigger = true; // unlock: stop blocking and let EndGame's trigger fire
+            allChestsCollected = true;
         }
     }
 }

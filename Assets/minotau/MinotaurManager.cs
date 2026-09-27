@@ -70,6 +70,48 @@
             _moveInterval = Time.time + stepTime;
         }
 
+        public void Respawn()
+        {
+            Maze maze = FindObjectOfType<Maze>();
+            if (maze == null)
+            {
+                Debug.LogWarning("MinotaurManager.Respawn: no Maze found in scene.");
+                return;
+            }
+
+            List<Vector2Int> floorTiles = new List<Vector2Int>();
+            for (int x = 0; x < maze.w; x++)
+            {
+                for (int y = 0; y < maze.h; y++)
+                {
+                    if (maze.Get(x, y) == 0)
+                    {
+                        floorTiles.Add(new Vector2Int(x, y));
+                    }
+                }
+            }
+
+            if (floorTiles.Count == 0)
+            {
+                Debug.LogWarning("MinotaurManager.Respawn: maze has no floor tiles yet.");
+                return;
+            }
+
+            Vector2Int spawn = floorTiles[UnityEngine.Random.Range(0, floorTiles.Count)];
+            transform.position = new Vector3(spawn.x, spawn.y, 0);
+
+            _isLeaping = false;
+            _currentState = State.FINDING;
+            _moveInterval = Time.time + stepTime;
+            accumulatedRage = 0;
+            _rageStarted = false;
+            _timerStarted = false;
+            _lostsightStarted = false;
+            checkingStraightRun = false;
+            straightRun = false;
+            _jumpFound = false;
+        }
+
         void Update()
         {
             

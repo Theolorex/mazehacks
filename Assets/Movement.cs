@@ -15,6 +15,12 @@ public class Movement : MonoBehaviour
     public Sprite sideSprite;
     public ParticleSystem accelerationParticles;
     public float maxParticleRate = 50f; // emission rate once fully accelerated to maxMoveSpeed
+    public float dashSpeed = 20f;
+    public float dashDuration = 0.15f;
+    public float dashCooldown = 10f;
+    private float dashCooldownTimer = 0f;
+    private bool isDashing = false;
+    private Vector2 lastMoveDirection = Vector2.down;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -24,12 +30,26 @@ public class Movement : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        dashCooldownTimer = Mathf.Max(0f, dashCooldownTimer - Time.deltaTime);
+
+        if (Input.GetKeyDown(KeyCode.LeftShift) && dashCooldownTimer <= 0f && !isDashing)
+        {
+            StartCoroutine(DashCoroutine());
+        }
+    }
+
     private void FixedUpdate()
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
         Vector2 movement = new Vector2(horizontal, vertical).normalized;
+        if (movement.sqrMagnitude > 0f)
+        {
+            lastMoveDirection = movement;
+        }
 
         holdTime = movement.sqrMagnitude > 0f ? holdTime + Time.fixedDeltaTime : 0f;
         float currentSpeed = Mathf.Min(moveSpeed + acceleration * holdTime, maxMoveSpeed);
@@ -53,7 +73,28 @@ public class Movement : MonoBehaviour
         {
             GetComponent<SpriteRenderer>().sprite = downSprite;
         }
-        rb.velocity = movement * currentSpeed;
+
+        if (!isDashing)
+        {
+            rb.velocity = movement * currentSpeed;
+        }
+    }
+
+    private IEnumerator DashCoroutine()
+    {
+        isDashing = true;
+        dashCooldownTimer = dashCooldown;
+
+        Vector2 dashDirection = lastMoveDirection.normalized;
+        float elapsed = 0f;
+        while (elapsed < dashDuration)
+        {
+            rb.velocity = dashDirection * dashSpeed;
+            elapsed += Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
+        }
+
+        isDashing = false;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -61,6 +102,7 @@ public class Movement : MonoBehaviour
         if (collision.gameObject.CompareTag("Wall"))
         {
             holdTime = 0f;
+            isDashing = false; // stop dashing into the wall so normal movement resumes
         }
     }
 

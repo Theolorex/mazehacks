@@ -38,7 +38,7 @@ public class Player : MonoBehaviour
         SpawnOnRandomFloor();
     }
 
-    private void SpawnOnRandomFloor()
+    public void SpawnOnRandomFloor()
     {
         Maze maze = FindObjectOfType<Maze>();
         if (maze == null)
@@ -68,6 +68,7 @@ public class Player : MonoBehaviour
 
         Vector2Int spawn = floorTiles[Random.Range(0, floorTiles.Count)];
         transform.position = new Vector3(spawn.x, spawn.y, 0);
+        rigidbody2D.velocity = Vector2.zero; // clear old momentum so a respawn doesn't carry it into the new maze
     }
 
     // Update is called once per frame

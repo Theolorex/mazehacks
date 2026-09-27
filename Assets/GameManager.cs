@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
 
     public void GameFail()
     {
-        
+        Time.timeScale = 0;
         
         
     }

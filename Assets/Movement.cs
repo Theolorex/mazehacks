@@ -13,13 +13,15 @@ public class Movement : MonoBehaviour
     public Sprite upSprite;
     public Sprite downSprite;
     public Sprite sideSprite;
+    public ParticleSystem accelerationParticles;
+    public float maxParticleRate = 50f; // emission rate once fully accelerated to maxMoveSpeed
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        
-        
-
-        
+        if (accelerationParticles != null)
+        {
+            accelerationParticles.GetComponent<ParticleSystemRenderer>().sortingOrder = 2; // draw above walls/chests (order 1) and floor (order 0)
+        }
     }
 
     private void FixedUpdate()
@@ -31,6 +33,7 @@ public class Movement : MonoBehaviour
 
         holdTime = movement.sqrMagnitude > 0f ? holdTime + Time.fixedDeltaTime : 0f;
         float currentSpeed = Mathf.Min(moveSpeed + acceleration * holdTime, maxMoveSpeed);
+        UpdateAccelerationParticles(currentSpeed);
 
         if (movement.x > 0)
         {
@@ -59,6 +62,25 @@ public class Movement : MonoBehaviour
         {
             holdTime = 0f;
         }
+    }
+
+    private void UpdateAccelerationParticles(float currentSpeed)
+    {
+        if (accelerationParticles == null) return;
+
+        bool isAccelerating = currentSpeed > moveSpeed;
+        if (isAccelerating && !accelerationParticles.isPlaying)
+        {
+            accelerationParticles.Play();
+        }
+        else if (!isAccelerating && accelerationParticles.isPlaying)
+        {
+            accelerationParticles.Stop();
+        }
+
+        float accelerationProgress = Mathf.InverseLerp(moveSpeed, maxMoveSpeed, currentSpeed);
+        ParticleSystem.EmissionModule emission = accelerationParticles.emission;
+        emission.rateOverTime = Mathf.Lerp(0f, maxParticleRate, accelerationProgress);
     }
 
 }

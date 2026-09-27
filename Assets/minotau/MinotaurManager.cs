@@ -19,6 +19,7 @@
         [SerializeField] private float lostTime;
         [SerializeField] private float stepTime;
         [SerializeField] float ragePower; //how much each time the minotaur ramps up by
+        [SerializeField] private float waitSecond = 0.5f;
 
         [SerializeField] private float leapTime = 0.15f;
         [SerializeField] private AnimationCurve leapCurve;
@@ -33,7 +34,6 @@
         private State _currentState;
         
         float predictPlayerTime;
-                float waitSecond;
                 
         private float _moveInterval; //move in intervals of this number
         private float _chargeTimer;
@@ -45,6 +45,9 @@
         private float rampTime;
         private float angerTime;
         private float accumulatedRage;
+        
+        private Vector2 savedDirection;
+        private bool checkingStraightRun;
         
         private bool _playerSeen;
         private bool _timerStarted;
@@ -72,7 +75,6 @@
             
             UpdateLeap();
             CalcDistance();
-            CheckDeath();
             Debug.Log(_currentState);
             
             switch (_currentState)
@@ -106,6 +108,7 @@
                     }
                     else
                     {
+                        _lostsightStarted = false;
                         _chaseTimer = Time.time + lostTime; //reset timer if the minotaur sees player again
                     }
                     break;
@@ -126,41 +129,48 @@
 
         private void FindJumpscare()
         {
-            //find player direction, floor it 
-            /*if (CheckStraightRun())
+            CheckStraightRun();
+
+            if (straightRun)
             {
                 _jumpFound = true;
-            }*/
-            //get wall in that direction
-            
+            }
         }
 
         private void CheckStraightRun()
         {
-            Vector2 savedDirection = Player.Instance.GetDirection();
-
-            
-            predictPlayerTime = Time.time + waitSecond;
-
-            if ((Time.time > predictPlayerTime))
+            if (!checkingStraightRun)
             {
-                if (savedDirection == Player.Instance.GetDirection())
-                {
-                    straightRun = true;
-                }
+                savedDirection = Player.Instance.GetDirection();
+                predictPlayerTime = Time.time + waitSecond;
+
+                checkingStraightRun = true;
+                straightRun = false;
+
+                return;
+            }
+
+            if (Time.time < predictPlayerTime)
+            {
+                return;
+            }
+            
+            if (savedDirection == Player.Instance.GetDirection())
+            {
+                straightRun = true;
             }
             else
             {
                 straightRun = false;
             }
+
+            checkingStraightRun = false;
             
         }
 
         private void SmashTile(Vector2 wallPosition)
         {
-            //move minotaur to that wall
-            //put explode jpg on the wall
-            //runs out wall towards player like normal, think this is handled naturally by astar
+            
         }
 
         private void CheckPatience()
@@ -170,14 +180,18 @@
                 if (!_timerStarted)
                 {
                     _lostTimer = Time.time + patienceTime;
+                    _timerStarted = true;
                 }
-                _timerStarted = true;
 
                 if (Time.time >= _lostTimer)
                 {
                     _timerStarted = false;
                     _currentState = State.SCARING;
                 }
+            }
+            else
+            {
+                _timerStarted = false;
             }
         }
 
@@ -277,9 +291,12 @@
                 accumulatedRage += ragePower;
             }
         }
-        private void CheckDeath()
+
+        private void OnTriggerEnter2D(Collider2D collision)
         {
-            if (_closenessRatio >= 1.0f)
+            Debug.Log("TRIGGER WITH: " + collision.gameObject.name);
+
+            if (collision.CompareTag("Player"))
             {
                 GameManager.Instance.GameFail();
             }

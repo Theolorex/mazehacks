@@ -6,22 +6,35 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class Minotaur : MonoBehaviour
+public class MinotaurManager : MonoBehaviour
 { 
+    [SerializeField] private MazePathfinder pathfinder;
     [SerializeField] float jumpRadius = 0.6f; //arbitrary, serialiszed for testing
     [SerializeField] private float patienceTime;
     [SerializeField] private float lostTime;
+    [SerializeField] private float stepTime;
+    [SerializeField] float ragePower; //how much each time the minotaur ramps up by
+    
+    
     private Vector2 _currentPosition; //THINK:how to get current position, noncleanly its kinda easy just whatever tile its touching
     private State _currentState;
-    private float _currentSpeed; //move in intervals of this number
+    
+    private float _moveInterval; //move in intervals of this number
     private float _chargeTimer;
     private float _lostTimer; //different time
     private float maxDistance = 10f;
     private float _closenessRatio; //increase the ratio based off tiles in distance to player
     private float _chaseTimer;
+    private float _rageAmount;
+    private float rampTime;
+    private float angerTime;
+    private float accumulatedRage;
+    
+    
     
     private bool _playerSeen;
     private bool _timerStarted;
+    private bool _rageStarted;
     private bool _lostsightStarted;
     private bool _jumpFound;
     
@@ -36,7 +49,7 @@ public class Minotaur : MonoBehaviour
     void Start()
     {
         _currentState = State.FINDING;
-        _currentSpeed = 5f;
+        _moveInterval = 5f;
     }
 
     void Update()
@@ -68,6 +81,7 @@ public class Minotaur : MonoBehaviour
                     if (Time.time >= _chaseTimer)
                     {
                         _lostsightStarted = false;
+                        accumulatedRage = 0;
                         _currentState = State.FINDING;
                     }
                 }
@@ -125,11 +139,46 @@ public class Minotaur : MonoBehaviour
 
     private void Movement()
     {
-        //based on interval
-        //jump to next tile
-        //lerp position
-    }
 
+        if (Time.time >= _moveInterval)
+        {
+            Vector2Int minoTile = new Vector2Int(Mathf.FloorToInt(_currentPosition.x), Mathf.FloorToInt(_currentPosition.y));
+            Vector2Int playerTile = new Vector2Int(Mathf.FloorToInt(Player.Instance.transform.position.x), Mathf.FloorToInt(Player.Instance.transform.position.y));
+                    
+            List<Vector2Int> path = pathfinder.FindPath(minoTile, playerTile);
+            
+            if (path != null && path.Count > 1)
+            {
+                //MOVE HERE
+            }
+            
+            _moveInterval = Time.time + stepTime;
+        }
+
+        if (_currentState == State.CHASING)
+        {
+            RampMovement();
+        }
+        
+    }
+    private void RampMovement()
+    {
+        //start timer
+        //each tick normally decreases moveInterval by a tiny amount
+        //overall timer will multiply that number
+        if (!_rageStarted)
+        {
+            rampTime = Time.time + angerTime;
+        }
+        _rageStarted = true;
+
+        _moveInterval -= accumulatedRage;
+        
+        if (Time.time >= rampTime)
+        {
+            accumulatedRage += ragePower;
+        }
+    }
     private void CheckDeath()
     {
         if (_closenessRatio >= 0.0f)
@@ -137,9 +186,7 @@ public class Minotaur : MonoBehaviour
             GameManager.Instance.GameFail();
         }
     }
-    
-        
-        //MINOTAUR SPAWN IN BREAKABLE TILE IF TOO FAR 
+
     
     //IF PLAYER is next to minotaur, cause camera shakes
 
@@ -157,7 +204,7 @@ public class Minotaur : MonoBehaviour
         //math.flooring function floor the players position divided by tile size  //divided by tile size???
         _currentPosition = new Vector2(Mathf.Floor(transform.position.x), Mathf.Floor(transform.position.y));
         Debug.Log("here cause my math might be wrong, current mino position is " + _currentPosition);
-        float distance = Vector2.Distance(_currentPosition, Player.Instance.GetPosition()); //convert number of tiles between minotaur to player to a ratio,
+        float distance = Vector2.Distance(_currentPosition, Player.Instance.GetDirection()); //convert number of tiles between minotaur to player to a ratio,
         _closenessRatio = 1f - Mathf.Clamp01(distance / maxDistance); //ratio 
         
         //1.0 when hugging tiles to trigger catch, or just make it a hitbox to simplify later

@@ -3701,10 +3701,11 @@ MonoBehaviour:
   rightSprite: {fileID: 21300000, guid: ee417a8340f8e024e99a9fffe09771ff, type: 3}
   pathfinder: {fileID: 191241793}
   jumpRadius: 0.6
-  patienceTime: 10
-  lostTime: 10
-  stepTime: 1
+  patienceTime: 2
+  lostTime: 4
+  stepTime: 0.5
   ragePower: 1
+  waitSecond: 0.4
   leapTime: 0.15
   leapCurve:
     serializedVersion: 2
@@ -3786,7 +3787,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: ee417a8340f8e024e99a9fffe09771ff, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -19179,3 +19180,4 @@ SceneRoots:
   - {fileID: 1814894958}
   - {fileID: 1025237542}
   - {fileID: 1908153716}
+  - {fileID: 445638672}

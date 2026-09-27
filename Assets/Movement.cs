@@ -27,14 +27,7 @@ public class Movement : MonoBehaviour
         rb.velocity = movement * moveSpeed;
     }
 
-    public Vector2 GetPosition()
-    {
-        return transform.position;
-    }
-    public Vector2 GetDirection()
-    {
-        return direction;
-    }
+
 
 
 }

@@ -1,4 +1,4 @@
-using System.Collections;
+ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,9 +8,14 @@ public class Maze : MonoBehaviour
     public int w;
     public int h;
 
+    public int chestCount = 3;
+
     [Header("Courtyard Size")]
     public int courtyardCount = 2;
     public int courtyardSize = 2;
+
+    [SerializeField] private GameObject wallPrefab;
+    [SerializeField] private GameObject floorPrefab;
 
     [Range(0f, 1f)]
     public float loopPercent = 0.1f;
@@ -67,6 +72,7 @@ public class Maze : MonoBehaviour
         Walk(1, 1, visited);
         AddLoops(loopPercent);
         CreateCourtyards(courtyardCount, courtyardSize);
+        PlaceChests(chestCount);
         CreateColliders();
     }
 
@@ -166,6 +172,51 @@ public class Maze : MonoBehaviour
             }
         }
     }
+    private List<Vector2Int> FindDeadEnds()
+    {
+        List<Vector2Int> deadEnds = new List<Vector2Int>();
+
+        for (int x = 1; x <= w - 2; x += 2)
+        {
+            for (int y = 1; y <= h - 2; y += 2)
+            {
+                if (tiles[x, y] != 0) continue;
+
+                int neighbors = 0;
+
+                if (x + 1 < w && tiles[x + 1, y] == 0) neighbors++;
+                if (x - 1 >= 0 && tiles[x - 1, y] == 0) neighbors++;
+
+                if (y + 1 < h && tiles[x, y + 1] == 0) neighbors++;
+                if (y - 1 >= 0 && tiles[x, y - 1] == 0) neighbors++;
+
+                if (neighbors == 1)
+                {
+                    deadEnds.Add(new Vector2Int(x, y));
+                }
+            }
+        }
+
+        return deadEnds;
+    }
+
+    private void PlaceChests(int count)
+    {
+        List<Vector2Int> deadEnds = FindDeadEnds();
+
+        for (int i = 0; i < deadEnds.Count; i++)
+        {
+            int j = Random.Range(i, deadEnds.Count);
+            (deadEnds[i], deadEnds[j]) = (deadEnds[j], deadEnds[i]);
+        }
+
+        int placed = 0;
+        for (int i = 0; i < deadEnds.Count && placed < count; i++)
+        {
+            Set(2, deadEnds[i].x, deadEnds[i].y);
+            placed++;
+        }
+    }
 
 
     private void CreateColliders()
@@ -174,25 +225,45 @@ public class Maze : MonoBehaviour
         {
             DestroyImmediate(transform.GetChild(i).gameObject);
         }
-        for (int x = 0; x < w; x++)
-    {
-        for (int y = 0; y < h; y++)
+        for (int tx = 0; tx < w; tx++)
         {
-            if (tiles[x, y] == 1)
+            for (int ty = 0; ty < h; ty++)
             {
-                GameObject wall = new GameObject("Wall");
-                wall.transform.parent = transform;
-                wall.transform.position = new Vector3(x, y, 0);
+                if (tiles[tx, ty] == 1)
+                {
+                    GameObject wall = Instantiate(wallPrefab, new Vector3(tx, ty, 0), Quaternion.identity, transform);
+                    wall.name = "WallGood";
+                }
+                else if (tiles[tx, ty] == 0 || tiles[tx, ty] == 2)
+                {
+                    GameObject floor = Instantiate(floorPrefab, new Vector3(tx, ty, 0), Quaternion.identity, transform);
+                    floor.name = "Floor";
+                }
 
-                BoxCollider2D collider = wall.AddComponent<BoxCollider2D>();
-                collider.size = Vector2.one;
+            }
+
+        }
+    }
+    private void OnDrawGizmos()
+    {
+        if (tiles == null)
+            return;
+
+        for (int tx = 0; tx < w; tx++)
+        {
+            for (int ty = 0; ty < h; ty++)
+            {
+                if (tiles[tx, ty] == 2)
+                {
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawCube(
+                    new Vector3(tx, ty, 0f),
+                    Vector3.one * 0.9f
+                    );
+                }
             }
         }
-
     }
-        //private void CreateColliders()
-
-}
 }
 
 #if UNITY_EDITOR
